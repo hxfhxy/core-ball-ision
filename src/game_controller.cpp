@@ -106,7 +106,6 @@ void GameController::updateState(const cv::Mat& frame) {
         
         tracker_.init(); // 新 Tracker 的初始化不需要参数
         ball_initialized_ = true;
-        last_click_time_ = static_cast<double>(cv::getTickCount()) / cv::getTickFrequency() + 0.5;
     }
 
     float real_frame_time = static_cast<float>(g_frame_capture_time);
@@ -118,7 +117,7 @@ void GameController::updateState(const cv::Mat& frame) {
 void GameController::findBestGap() {
     double now = static_cast<double>(cv::getTickCount()) / cv::getTickFrequency();
     float since = static_cast<float>(now - last_click_time_);
-    if (since < 0.5) return; // 防抖冷却
+    if (since < 0.3) return; // 防抖冷却
 
     if (state_.pins.empty()) {
         state_.should_click = true;
@@ -131,7 +130,7 @@ void GameController::findBestGap() {
     // 0. 反转检测与 1 秒停火期
     // ==========================================
     // 如果前后两帧速度符号相反（且都不是0），说明发生了方向反转
-    if (g_last_w != 0.0f && w != 0.0f && (w * g_last_w < 0.0f)) {
+    if ((w * g_last_w < 0.0f) && std::abs(w) > 0.3f && std::abs(g_last_w) > 0.3f) {
         g_reversal_time = now;
         printf("[安全机制] 检测到轮盘反转，强制观察停火 1 秒...\n");
     }
@@ -146,7 +145,7 @@ void GameController::findBestGap() {
     // 1. 刚体体积防撞区 (修复针头相撞漏洞)
     // ==========================================
     float R = state_.radius;
-    float ball_r = R * 0.1f; // 小球的物理碰撞半径
+    float ball_r = R * 0.12f; // 小球的物理碰撞半径
     float actual_pin_dist = state_.pins[0].distance;
     if (actual_pin_dist < R * 1.5f) actual_pin_dist = R * 3.0f;
 

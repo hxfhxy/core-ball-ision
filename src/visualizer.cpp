@@ -95,10 +95,9 @@ void Visualizer::update(const cv::Mat& frame, const GameState& state,
                 char buf[32];
                 float total_angle = angle_end - angle_start;
                 std::snprintf(buf, sizeof(buf), "safe:%.1f", total_angle * 180.0f / static_cast<float>(M_PI));
-                cv::putText(display_, buf,
-                            cv::Point(static_cast<int>(state.center.x + arc_r + 5),
-                                      static_cast<int>(state.center.y)),
-                            cv::FONT_HERSHEY_SIMPLEX, 0.4, cv::Scalar(0, 255, 255), 1);
+              cv::putText(display_, buf,
+                            cv::Point(20, 30), // 原本这里是 state.center.x + arc_r + 5
+                            cv::FONT_HERSHEY_SIMPLEX, 0.7, cv::Scalar(0, 255, 255), 2);
             }
         }
     }
